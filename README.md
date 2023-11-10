@@ -1,5 +1,5 @@
 # opticalc library
-This library is intended to assist in effective medium theory calculations.
+This library is intended to assist in transfer matrix method and effective medium theory calculations.
 
 This repository contains the current working version of opticalc library and some example jupyter notebooks.
 
@@ -7,7 +7,7 @@ This repository contains the current working version of opticalc library and som
 It is recommended that the repository be cloned, and a new python virtual enviroment be set up to install the prequisite packages.  A new jupyter kernel can then be created from that virtual environment.
 
 ```
-md opticalc_repo
+mkdir opticalc_repo
 git clone https://github.com/iandvaag/opticalc
 cd opticalc/
 python3 -m venv github_opticalc_myenv

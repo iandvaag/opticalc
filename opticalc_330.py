@@ -135,7 +135,7 @@ class Arrow3D(FancyArrowPatch):
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
         self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
         FancyArrowPatch.draw(self, renderer)
 
@@ -901,7 +901,7 @@ class materials(object):
         var = sympy.symbols('var')
         solns = sympy.solve(a*var**3 + b*var**2 + c*var + d, var)
     #     for i in range(len(solns)):
-    #         print("solution #", i, ": ", np.complex(solns[i]))
+    #         print("solution #", i, ": ", complex(solns[i]))
         return(solns)
 
     ## Consider a product of several binomials of the form: (a1 + a2*x)*(b1 + b2*x)*(c1 + c2*x)*...(n1 + n2*x)
@@ -1299,7 +1299,7 @@ class materials(object):
         for i in range(self.size):
             w = 2*np.pi*3*10**10*self.nu[i]
             wt = eps2Arr[i]*w/(1-eps1Arr[i])
-            wp = np.sqrt(np.complex((1-eps1Arr[i])*(w**2 + wt**2)))
+            wp = np.sqrt(complex((1-eps1Arr[i])*(w**2 + wt**2)))
             vt[i] = wt / (2*np.pi*CONST_c*(UNIT_cm/UNIT_m))
             vp[i] = wp / (2*np.pi*CONST_c*(UNIT_cm/UNIT_m))
         return vp, vt

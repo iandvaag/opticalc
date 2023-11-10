@@ -1,7 +1,9 @@
-# opticalc
-Current working version of opticalc
+# opticalc library
+This library is intended to assist in effective medium theory calculations.
 
-## install notes
+This repository contains the current working version of opticalc library and some example jupyter notebooks.
+
+## Install notes
 ```
 md opticalc_repo
 git clone https://github.com/iandvaag/opticalc
@@ -12,6 +14,8 @@ pip install -r requirements.txt
 python -m ipykernel install --user --name=github_opticalc_myenv
 jupyter notebook
 ```
+Note that you sould select the kernel 'github_opticalc_myenv' as a kernel befor running the example notebooks.
 
 
+## How to use the library
 Documentation for use is viewable at: [https://iandvaag.github.io/opticalc/](https://iandvaag.github.io/opticalc/)

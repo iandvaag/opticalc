@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>README</title>
+</head>
+
+<body>
+<h1>Documentation for optical modelling program</h1>
+<h1>Contents</h1>
+<ul>
+	<li><a href="README.html#Overview">Overview</a></li>
+	<li><a href="README.html#Installation">Installation</a></li>
+	<li><a href="README.html#Instructions">Instructions for use</a></li>
+	<ul>
+		<li><a href="materials.html">materials() class</a></li>
+		<li><a href="phaseSys.html">phaseSys() class</a></li>
+		<li><a href="createFit.html">createFit() class</a></li>
+	</ul>
+	<li><a href="README.html#Example">An example use case</a></li>
+	<li><a href="README.html#Issues">State of the Program</a></li>
+	<li><a href="README.html#References">References</a></li>
+	<li><a href="README.html#Contact">Contact</a></li>
+	<li><a href="README.html#License">License</a></li>
+</ul>
+
+<h1 id="Overview">Introduction and overview</h1>
+<p>
+	This is a program for optical modelling using the Fresnel equations through a series of stratified layers. The permittivities of the materials can be calculated using a variety of models, including the Bruggeman EMT (effective medium theory) for non-homogenous systems. This README document attempts to describe the program from a users perspective and it does not explain the source code in detail. I've made some attempt to comment the source code, and parts of <a href="ANDVAAG-THESIS-2022.pdf">my thesis</a> describe some of the math.<br/><br/>
+
+	If you are not familliar with optical modelling using the Transfer Matrix Method, you can read part of the <a href="basic_primer.pdf">Supporting Information</a> for <a href="https://pubs.acs.org/doi/10.1021/acsanm.8b02155">Andvaag, I., Morhart, T., Clarke, O., Burgess, I. <i>ACS Appl. Nano Mater.</i> <b>2019</b> 2 (3), 1274-1284</a>. It should give a reasonable primer on the various permittivity models and how to use the Fresnel equations. <br/><br/>
+
+	Here's an rough outline of how I expect the program might be used:
+	<ol>
+		<li>Create a materials() object, thereby initializing the domain mode, the fixed AOI or frequency, the low and high limits of the domain of interest, and the number of wavenumbers between plotted points </li>
+		<li>Assign the material types using the methods of the materials object. </li>
+		<li>Create a phaseSys()object</li>
+		<li>Define a stratified system on which to perform calculations by calling the setLayers() and setThicknesses() methods of the phaseSys() object</li>
+		<li>Perform the calculation using the calcR(), calcT(), calcA(), or calcE() methods of phaseSys().</li>
+		<li>Plot up the computed data in the notebook, or export an ASCII file of the computed values.</li>
+	</ol>
+</p>
+<h1 id="Installation">Installation</h1>
+<p>
+	<ol>
+		<li>This program can be found at: <a href="https://github.com/iandvaag/opticalc">github.com/iandvaag/opticalc</a></li>
+		<li>Copy the entire <i>optical_modeling_program</i> folder to the local drive where you want to run the program.</li>
+		<li>Launch Jupyter and navigate to the folder containing the program files.</li>
+		<li>If you try to use the program and you get an error message saying that certain libraries are not installed, you may need to install the libraries. This can be done through the terminal. To run something from the terminal from within a Jupyter notebook, use an exclamation mark before the command, such as: <br/>
+		<p class="codeinput"><b><span style="color:purple">!</span></b>pip install &lt;library&gt;</p></li>
+	</ol>
+	</p>
+<h1 id="Instructions">Instructions for use</h1>
+<p>
+	There are two main classes that do the heavy lifting: the <b>materials()</b> class, and the <b>phaseSys()</b> class. There is also a <b>createFit()</b> class for fitting to the Drude model. To make use of these classes, you must import them with: <br/>
+	<p class="codeinput"><b><span style="color:green">from</span></b> opticalc_330 <b><span style="color:green">import </span></b> <span style="color:purple">*</span>
+	</p>
+
+	<a href="materials.html"><h2>Using the materials() class</h2></a>
+	<p>&nbsp;&nbsp;An object that defines the basic parameters of the system and has various methods to define permittivities of materials. </p>
+	<a href="phaseSys.html"><h2>Using the phaseSys() class</h2></a>
+	<p>&nbsp;&nbsp;An object used to setup the specific system and calculate reflectivity, transmissivity, and absorptivity.</p>
+	<a href="createFit.html"><h2>Using the createFit() class</h2></a>
+	<p>&nbsp;&nbsp;An object used to visually fit experimental reflectivity data to the Drude model.</p>
+</p>
+<h2 id="Example"><a href="example.html">An example use case</a></h2>
+<p>This example use case also exists in a jupyter notebook form titled ATR-SEIRAS_example.ipynb</p>
+
+<h1 id="Issues">State of the code</h1>
+<p>
+<p>Please use this code at your own risk and do not trust its accuracy. I have attempted to implement the mathematics correctly, but there are surely many errors and bugs. In order to verify that my implementation is correct, I have tried to reproduce various plots found in the literature. The notebook &lt;test_cases_for_evaluation.ipynb&gt; contains some of the test cases that I have successfully reproduced, as well as some cases that I have failed to reproduce.   </p>
+<h2>Known Working</h2>
+<ul>
+	<li><b>getGeometricFactor(a, b, c, forceGeneral = False)</b> Consistent. Any of Bohren and Huffman, Osborne, Fedotov are all acceptable and in agreement. The general formula is given in Bohren and Huffman, page 145.  See DEMO_001 for replication of Fig 5.6 on page 147 in Bohren and Huffman. See DEMO_002 for a check for the consistency of the general formula and the analytical expressions for the ellipsoids of revolution. Depolarization factors for ellipsoids are explained in the following two papers: <a href="https://www.tandfonline.com/doi/abs/10.1080/14786444508521510">Stoner, E. C. <i>The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science</i> <b>1945</b>, 36, 803-821.</a> and <a href="https://journals.aps.org/pr/abstract/10.1103/PhysRev.67.351">Osborn, <i>J. A. Physical Review</i> <b>1945</b>, 67, 351-357.</a></li>
+	<li><b>setBasicMaxwellGarnett(self, matName, inclusionMat, matrixMat, f)</b> Working. See DEMO_003 for replication of Fig 3 in Bohren and Battan 1980.</li>
+	<li><b>setBasicBruggeman(self, matName, inclusionMat, matrixMat, f)</b> Working. See DEMO_003 for replication of Fig 3 in Bohren and Battan 1980. Uses the getPhysicalRoot() function. 2-phase, 3-dimensional, no self consistency requirement.</li>
+	<li><b>setCoatedEllipsoid(matName, coreMat, shellMat, a_core, b_core, c_core, rotMat=None, lamda=False)</b> Working. See DEMO_006 which replicates figures 2c, 3d and 4d in: 2017_zhao_mei_J._Phys._D _Appl._Phys._50_505001. TO DO: add rotMat implementation so that the ellipsoid axes need not align with the multilayer stack axes. Could add an edge case to warn the user if they try and call the function using lamda = 1, or other invalid range (lamda < 0; lambda >= 1). xi2 = np.real(rutz[2]) # TODO: Verify that this is the case. -> # Select the root which yields purely real a2, b2, c2. The second root always seems to be correct.</li>
+	<li><b>calcR(), calcT(), calcA(), calcE(), and propMatrix()</b> Broadly, the Transfer Matrix Method which employs the Fresnel equations is working correctly. See DEMO_007 for reproduction of some figures in <a href="https://www.osapublishing.org/ao/abstract.cfm?uri=ao-29-13-1952">Ohta, K.; Ishida, <i>H. Appl. Opt.</i> <b>1990</b>, 29, 1952-1959.</a>. One issue I have not been able to resolve is my inability to reproduce figure 5 from <a href="https://www.osapublishing.org/josa/abstract.cfm?uri=josa-58-3-380">Hansen, W. <i>J. Opt. Soc. Am.</i> <b>1968</b>, 58, 380-390.</a>. The frequency of the standing waves in the incident semi-infinite phase is double what Hansen reports. I'm not sure why this is the case. The exponent is i*2*pi*nu*eta*cos(theta)*delta(z).  If the exponent is halved, the frequency of the standing waves will be halved, but I cannot find any physical justification why any of these terms should be halved.
+</ul>
+<h2>Unknown Status (as of yet unverified)</h2>
+<ul>
+	<li><b>setBruggeman(self, matName, coreMat, shellMat, matrixMat, thickness, molec, ratio1, F, plotResult=False, iterations=1)</b> Bruggeman formula for 3 phase, coated core-shell ellipsoids, NO self consistency condition. Uses equation 6 from <a href="https://doi.org/10.1103/PhysRevB.18.2897">Granqvist, C. G.; Hunderi, O.. Phys. Rev. B.<b>1978</b>, 18, 2897</a> </li>
+	<li><b>getPhysicalRoot(wienerZ_ARR, roots_ARR)</b> This function uses the Wiener bounds to select the physically correct solution of the n-phase Bruggeman effective medium approximation. See 1993 Jansson & Arwin. Optics communication 106. p 133-138. They provide a fantastic explanation of the algorithm to select the physically correct root, however, no examples are given of the final permittivities calculated.</li>
+	<li><b>setMultiBruggeman(self, matName, constituentMat_ARR, fill_ARR)</b>The math used by this function is described in my <a href="ANDVAAG-THESIS-2022.pdf">MSc. thesis</a>. I have verified that my implementation produces correct output in the limiting case of a two-phase composite (see DEMO_003, that the black dotted lines produced by the setMultiBruggeman() function match those produced by the setBasicBruggeman() function. I do not have test cases for 3 or more constituents to verify my implementation. This function makes us of getPhysicalRoot().</li>
+</ul>
+
+<h2>Known Issues</h2>
+<ul>
+	<li><b>setOsawaBruggeman(matName, ellipsoidMat, adsorbateMat, hostMat, thickness, molec, ratio1, F)</b> Unable to quantitatively reproduce the figures in <a href="https://www.sciencedirect.com/science/article/pii/0368204893800998">Osawa, M.; Ataka, K.; Yochii, K.; Yotsuyanagi, T. J. <i>Electron. Spectrosc. Relat. Phenom.</i> <b>1993</b>, 64-65, 371-379.</a>. The general lineshapes are approximately correct, but the magnitudes are incorrect. See DEMO_010.</li>
+</ul>
+</p>
+
+<h1 id="References">References for experimental refractive indices</h1>
+<table>
+<tr>
+	<th></th>
+	<th>Reference</th>
+	<th>Materials</th>
+</tr>
+
+<tr>
+	<td>1.</td>
+	<td><a href="https://www.osapublishing.org/ao/abstract.cfm?uri=ao-54-3-477"> Babar, S. and Weaver, J. H. <b>2015</b>. <i> Appl. Opt.</i></a></td>
+	<td>Ag, Au, Cu</td>
+</tr>
+<tr>
+	<td>2.</td>
+	<td><a href="https://www.osapublishing.org/ao/abstract.cfm?uri=ao-12-3-555"> Hale, G. M. and Querry, M. R..<b>1973</b>. <i>Appl. Opt.</i>12, 555-563.</a></td>
+	<td>H<sub>2</sub>O</td>
+</tr>
+<tr>
+	<td>3.</td>
+	<td><a href="https://aip.scitation.org/doi/10.1063/1.555616"> Li, H. H. <b>1980</b>. <i>J. Phys. Chem. Ref. Data</i> 9, 161-289.</a></td>
+	<td>CaF<sub>2</sub></td>
+</tr>
+<tr>
+	<td>4.</td>
+	<td><a href="https://aip.scitation.org/doi/10.1063/1.555624"> Li, H. H.<b>1993</b>. <i>J. Phys. Chem. Ref. Data</i> 9, 561-658.</a></td>
+	<td>Ge, Si</td>
+</tr>
+<tr>
+	<td>5.</td>
+	<td><a href="https://aip.scitation.org/doi/10.1063/1.555536"> Li, H. H.<b>1976</b>. <i>J. Phys. Chem. Ref. Data</i> 5, 329, 528</a></td>
+	<td>KBr</td>
+</tr>
+<tr>
+	<td>6.</td>
+	<td><a href="https://www.osapublishing.org/ao/abstract.cfm?uri=ao-26-4-744"> Ordal, M. A., Bell, R. J., Alexander, R. W., Long, L. L., Querry, R. R.<b>1987</b>. <i>Appl. Opt.</i> 26, 744-752.</a></td>
+	<td>Ni</td>
+</tr>
+<tr>
+	<td>7.</td>
+	<td><a href="https://journals.aps.org/pr/abstract/10.1103/PhysRev.136.A1445"> Philip, H.R. and Taft, E. A. <b>1964</b>. <i> Phys. Rev.</i>136, A1445.</a></td>
+	<td>C (diamond)</td>
+</tr>
+<tr>
+	<td>8.</td>
+	<td><a href="https://apps.dtic.mil/docs/citations/ADA192210"> Querry, M. R. <b>1987</b>. <i>Contractor Report</i>CRDEC-CR-88009</a></td>
+	<td>ZnSe</td>
+</tr>
+</table>
+<h1 id="Contact">Contact</h1>
+<p>Ian Andvaag is the primary author of this program. He can be reached at: <a href="mailto:ira044@usask.ca">ira044@usask.ca</a></p>
+
+<h1 id="License">License</h1>
+<p>This project is licensed under the GNU GPL v2.0 license. If you make something cool, please reach out to me -- I'd love to hear about it!</p>
+</body>
+</html>

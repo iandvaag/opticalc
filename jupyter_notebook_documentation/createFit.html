@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>createFit</title>
+</head>
+
+<body>
+<h1>The createFit() class</h1>
+<a href="README.html">Back</a> to main page.
+<h2>Overview</h2>
+<p>
+	This is a very narrow-use class -- all it does is compute an interactive reflectance spectrum which allows the user to move sliders to change the parameters of the calculation such that the computed spectrum visually matches a provided experimental spectrum. I wanted it to be general use, but it's hard to imagine what a general fitting test case is. In any case, one should be able to modify the source code and construct similar functions to fit whatever type of data one desires.<br/><br/>
+
+	The fitting functions work well, but they expect a very particular file name. The experimental data files should be in a folder titled "fitting_test_cases" and this folder should be situated in the same directory as the python script that is running. Within this folder should be two directories named "s" and "p". Within each of those directories should be a directory named whatever material name that you want to fit. The data files should go in this directory. The data file names should have the format <b><span class="codeinput">&lt;thickness&gt;_&lt;angle&gt;.csv</span></b> &nbsp; where &lt;thickness&gt; is the integer value of the material thickness in nm, and &lt;angle&gt; is the integer value of the AOI in degrees. You will also need a file titled <b><span class="codeinput">au&lt;angle&gt;.csv</span></b> &nbsp; containing the single beam of your reference spectrum (probably a gold mirror, hence the file name.) The program automatically calculates external reflectivity using the single beams of the angle given, but if you already have calculated the reflectivity, simply prepend the file name with "r". For example: <span class="codeinput"> <b>r25_50.csv</b></span> &nbsp; would indicate a reflectivity spectrum for a 25 nm thick layer of material at an AOI of 50 degrees. If you provide reflectivity data, obviously no reference single beam data is needed.<br/><br/>
+
+	The program uses the same parameters as the file name to avoid user error. This is less general than simply giving the program a file name and path, but I found I often made errors by not calculating the same system as the system for which the experimental data is provided. <br/><br/>
+
+	
+</p>
+
+<h2>Creating a createFit() object</h2>
+<div class="highlight">
+	<h2>createFit(pol, aoi, thickness, material, spectrum, <span class="opt">[cutoff]</span>)</h2>
+	<ul>
+		<li><b>pol</b>: character, either 's' or 'p' indicating the polarization of light</li></li>
+		<li><b>aoi</b>: float, angle of incidence indicated in experimental file name</li>
+		<li><b>thickness</b>: float, thickness of layer indicated in experimental file name</li>
+		<li><b>material</b>: string, name of material indicated in experimental file name</li>
+		<li><b>spectrum</b>: string indicating the type of data in the file, either
+			<ul>"sb", for single beam</ul>
+			<ul>"refl", for already computed external reflectivity</ul>
+		</li>
+		<li><span class="opt"><b>cutoff</b>: int, optional wavenumber cutoff. need to be such that the arrays of values of eta (data from refractiveindex.info) contain data (e.g. must be above 1000 cm^-1). (Default = 1081.)</span></li>
+		
+	</ul>
+</div>
+
+<h2>Methods</h2>
+<ul>
+<li><h3>.drude1(vD, vP, e_inf, thick, ang)</h3>
+<div class="des">This method can be used to fit to a monolayer of Drude-modelled material. </div>
+	<ul>
+		<li><b>vD</b>:  float, damping factor in wavenumbers</li>
+		<li><b>vP</b>:  float, plasma frequency in wavenumbers</li>
+		<li><b>e_inf</b>:  float, (&epsilon;<sub>&#8734;</sub>) permittivity at high wavenumbers (off resonance)</li>
+		<li><b>thick</b>:  float, thickness of the Drude-modelled layer</li>
+		<li><b>ang</b>:  float, angle of incidence used for the calculated reflectivity spectrum</li>
+	</ul>
+</li><br/>
+
+<li><h3>.drude2(vD_surface, vP_surface, vD_bulk, vP_bulk, e_inf, frac, thick, ang)</h3>
+<div class="des">The .drude2 method is used to fit data to a Drude model, but separates the material into a bilayer of bulk material and surface material with slightly different properties.</div>
+	<ul>
+		<li><b>vD_surface</b>:  float, damping factor of surface layer in wavenumbers</li>
+		<li><b>vP_surface</b>:  float, plasma frequency of surface layer in wavenumbers</li>
+		<li><b>vD_bulk</b>:  float, damping factor of bulk layer in wavenumbers</li>
+		<li><b>vP_bulk</b>:  float, plasma frequency of bulk layer in wavenumbers</li>
+		<li><b>e_inf</b>:  float, (&epsilon;<sub>&#8734;</sub>) permittivity at high wavenumbers (off resonance)</li>
+		<li><b>thick</b>:  float, thickness of the Drude-modelled layer</li>
+		<li><b>ang</b>:  float, angle of incidence used for the calculated reflectivity spectrum</li>
+	</ul>
+</li><br/>
+</ul>
+<a href="README.html"><h2>Back to main page.</h2></a> 
+
+
+</body>
+</html>

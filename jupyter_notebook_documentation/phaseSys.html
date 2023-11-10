@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>phaseSys</title>
+</head>
+
+<body>
+
+<h1> The phaseSys() class </h1>
+
+
+<h2>Overview</h2>
+<p>
+	This class is used to set up a system layers and perform calculations such reflectivity, transmissivity, absorptivity and electric field intensity. <br/><br/>
+</p>
+
+<h2>Creating a phaseSys() object</h2>
+
+<div class="highlight">
+	<h2>phaseSys(phaseNum, materialsObj)</h2>
+	<div class="des">Defines the system of stratified layers and has various methods to compute optical properties of the system.</div>
+	<ul>
+		<li><b>phaseNum</b>: integer, number of phases to be modeled</li>
+		<li><b>materialsObj</b>: an instance of materials object with all the materials loaded defined within it</li>
+	</ul>
+</div>
+
+<h2>Methods</h2>
+<ul>
+	<li><h3>.setLayers(vals)</h3>
+	<div class="des">Defines the materials of the stratified system.</div>
+		<ul>
+			<li><b>vals</b>:  array of strings, an ordered list of keys for the materials that you want to model, in order from incident to terminal phase. The strings must be the keys to the matDict dictionary of materials() object passed to phaseSys(). (In other words, you must have already defined the permittivities of the materials and you must use the same identifiers that you gave when defining the permittivities.)</li>
+		</ul>
+	</li></br>
+
+	<li><h3>.setThicknesses(vals)</h3>
+	<div class="des">Sets the thicknesses of the layers.</div>
+		<ul>
+			<li><b>vals</b>:  array of floats, an ordered list of thicknesses for the materials that you want to model, in order from 2nd to penultimate. The first and final phases are considered semi-infinite, and thus do not need thicknesses (i.e. for a system of <i>n</i> phases, you need to supply <i>n-2</i> thicknesses.)</li>
+		</ul>
+	</li></br>
+
+	<li><h3>.calcR(p, <span class="opt">[refEta]</span>)</h3>
+	<div class="des">Calculates Reflectivity, R, (squared modulus of Fresnel reflection coefficient, r) of the system.</div>
+		<ul>
+			<li><b>pol</b>:  character, either 's' or 'p' indicating the polarization of light</li>
+			<li><span class="opt"><b>refEta</b>: optional argument. It is used by the calcA function, the user should never have to use it. Default value False.</span></li>
+			<li><div class="return">Returns: an array of reflectances as a function of the chosen domain.</div></li>
+		</ul>
+	</li></br>
+
+	<li><h3>.calcT(p, <span class="opt">[refEta]</span>)</h3>
+	<div class="des">Calculates Transmissivity, T, (squared modulus of Fresnel transmission coefficient, t) of the system.</div>
+		<ul>
+			<li><b>pol</b>:  character, either 's' or 'p' indicating the polarization of light</li>
+			<li><span class="opt"><b>refEta</b>: optional argument. It is used by the calcA function, the user should never have to use it. Default value False.</span></li>
+			<li><div class="return">Returns: an array of transmittances as a function of the chosen domain.</div></li>
+		</ul>
+	</li></br>
+
+	<li><h3>.calcA(p, <span class="opt">[mode]</span>)</h3>
+	<div class="des">Calculate absorptivity of the system.</div>
+		<ul>
+			<li><b>pol</b>:  character, either 's' or 'p' indicating the polarization of light</li>
+			<span class="opt"><li><b>mode</b>: string, either:
+				<ul>"<i>ratioR</i>" for Abs = -log10(R1/R2)</ul>
+				<ul>"<i>totalRT</i>" for Abs = 1 - R - T</ul>
+				<ul>(Default = "<i>ratioR</i>")</ul>
+			</li></span>
+			<li><div class="return">Returns: an array of <b>milli</b>absorbances as a function of the chosen domain.</div></li>
+		</ul>
+		<p>It bears mentioning that the .calcA() method only needs to be provided with the "sample" system, and it will automatically determine a "reference" system and compute the absorbance by taking -log<sub>10</sub>(sample/reference). The method setLayers() creates an attribute, self.etas, and for each material called, the method copies over the permittivity array from the materials object. The setLayers() method also creates a second attribute, self.etasRef. This attribute is identical to the self.etas attribute, except that the organic adsorbate is replaced with the terminal phase. First, the method checks to see if any of the materials were created with the setBruggeman() method in the materials class. If it finds a Bruggeman layer, it will recreate the permittivity function of the material by replacing the adsorbate material with the host material. If no Bruggeman layer is present in the list of parameters, it will simply replace the penultimate phase with the ultimate phase.<br/><br/>
+
+		This allows the .calcA() method to automatically create a reference case to use when computing absorbance instead of requiring the user to manually set up a reference case, which is error-prone. Note that this "automatic reference calculation" only works if the organic adsorbate is in the penultimate layer (or adsorbed to the ellipsoids in the Bruggeman layer, which itself is the penultimate layer.) I did this because I found that I was making errors when calculating the reference case, and unintentionally changing more parameters than simply removing the test molecule. Of couse it is still possible to calculate absorbances manually by calculating two reflectivity spectra and taking the negative log of their ratio.</p>
+	</li></br>
+
+
+	<h2></h2>
+</ul>
+<a href="README.html"><h2>Back to main page.</h2></a>
+
+</body>
+</html>

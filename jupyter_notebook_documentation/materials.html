@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>Materials</title>
+</head>
+<body>
+<h1>The materials() class</h1>
+
+<h2>Overview</h2>
+<p>
+	<p>The materials() class is used to define and store the permittivity values of different materials as a function of wavenumber.</p>
+	<p>When a material is defined using one of the methods, the complex permittivity, &epsilon;, and complex refractive index, &eta;, are stored inside the materials() object under the .matDict attribute. <br/></p>
+	<p>The dictionary key for &epsilon; is ["eps"] and the key for &eta; is ["eta"].</p>
+	<p>For example, to access the imaginary part of the permittivity of Au you would input:<br/></p>
+	<p class="codeinput">np.imag(&lt;materialsInstanceName&gt;.matDict["Au"]["eps"])</p>
+	where &lt;materialsInstanceName&gt; should be replaced with the name of your materials object without the &lt; &gt;.
+</p>
+
+<h2>Creating a materials() object</h2>
+<div class="highlight">
+<h2>materials(domainInput, fixed_aoi_or_wavenumber, <span class="opt">[loInput], [hiInput], [numVals]</span>)</h2>
+<div class="des">Defines the basic parameters of the system and has various methods to define permittivities of materials. </div>
+<ul>
+	<li><b>domainInput</b>: a string, either "frequency" or "aoi" depending on what you would like your domain to be.</li>
+	<li><b>fixed_aoi_or_wavenumber</b>: float, representing either: <ul><li>Fixed frequency in wavenumbers (if domainMode = "aoi")</li><li>Fixed angle of incidence in degrees (if domainMode = "frequency")</li></ul></li>
+	<li><span class="opt"><b>loInput</b>: the lower bound of the domain to be calculated (default = 1500)</span></li>
+	<li><span class="opt"><b>hiInput</b>: the upper bound of the domain to be calculated (default = 1700)</span></li>
+	<li><span class="opt"><b>numVals</b>: the number of data points in the domain to be calculated (default = 100)</span></li>
+
+</ul></div>
+
+<h2>Methods to define permittivity for single-component materials</h2>
+<p>In order to use any of the following methods, you must have already defined the permittivity functions of some materials. The methods that follow are different ways of combining the already-defined permittivity functions of pure materials together to create an effective permittivity function of a composite material in the long wavelength limit.</p>
+<!-- A materials object has several different methods that allow permittivity values to be defined: -->
+<ul>
+<li><h3>.importMat(matName)</h3>
+	<div class="des">Imports tabulated permitivities of materials from .csv files with the name <i>&lt;name&gt;.csv</i> located in the directory <i>materials_n_k.</i></div>
+	<ul>
+		<li><b>matName</b>: a string containing part of the filename of the csv file containing the values you want to import. The file should be stored in a folder named "materials_n_k" in the root directory. The columns in the csv, from left to right should be: Wavenumber, n, k. If there is no third "k" column, it is interpreted as having a wavenumber-invariant damping factor of 0. Note that OptiCalc will perform a cubic spline interpolation to get the required values for the requested calculation based on the values of loInput, hiInput, and numVals when creating the "materials" object. The program will not extrapolate and will provide an error message to the user if the frequency range of the csv file is smaller than the frequency range required for the calculation. </li>
+	</ul>
+</li><br/>
+
+<li><h3>.setFixed(matName, independent_n, <span class="opt">[independent_k]</span>)</h3>
+	<div class="des">Sets a wavenumber-invariant refractive index.</div>
+	<ul>
+		<li><b>matName</b>:  string that will later be used to refer to this material</li>
+		<li><b>independent_n</b>: wavenumber-invariant refractive index </li>
+		<li><span class="opt"><b>independent_k</b>: optional. wavenumber-invariant damping factor. If none is given, it is assumed to be 0. </span></li>
+	</ul>
+</li><br/>
+
+<li><h3>.setLorentz(matName, B, vD, epsInf, vR)</h3>
+	<div class="des">Calculates the permittivities by modelling a Lorentz oscillator.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>B</b>: list of floats - oscillator strength defined as in <a href="https://doi.org/10.1016/0368-2048(93)80099-8">Osawa et al <i>J Electron Spectros Relat Phenomena.</i> <b>1993</b>, 64/65, 376</a> (<b>B</b> must have units of cm<sup>-2</sup>) </li>
+
+		<li><b>vD</b>: list of floats -  damping factors of the Lorentz oscillator (in wavenumbers) </li>
+		<li><b>epsInf</b>: float - permittivity far off resonance </li>
+		<li><b>vR</b>: list of floats - resonant frequency of the Lorentz oscillator in wavenumbers </li>
+	</ul>
+</li><br/>
+
+<li><h3>.setDrude(matName, vP, vD, epsInf, <span class="opt">[method]</span>)</h3>
+	<div class="des">Calculates the permittivities using the Drude model for metals, accounting only for the unbound electrons -- no interband transitions.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>vP</b>: float - plasma frequency of the Lorentz oscillator in wavenumbers </li>
+		<li><b>vD</b>: float - damping factor of the Lorentz oscillator in wavenumbers </li>
+		<li><b>epsInf</b>: float - permittivity far off resonance </li>
+		<li><span class="opt"><b>method</b>: optional string - either "LeRu" or "Franzen", indicating the method/convention by which the plasma frequency is reported.  For more details, <a href="drude_model_discrepancy.pdf">read this</a> (from page 7 of the supporting information of <a href="https://pubs.acs.org/doi/10.1021/acsanm.8b02155" target="_blank"><i>ACS Appl. Nano Mater.</i> <b>2019</b>, 2, 3, 1274-1284</a>. If none is given, "Franzen" is assumed.</span></li>
+	</ul>
+</li><br/>
+
+<li><h3>.setLorentzDrude(matName, vP, f, vD, vj)</h3>
+	<div class="des">Calculates permittivities using the generalized Lorentz-Drude model. This function uses the parameterization provided by the equation under the "Multiple Resonanaces" section of <a href="https://hdl.handle.net/10388/13997">my thesis</a>. Uses the same parameterization as <a href="https://youtu.be/h4XBfAISAJs?t=389">Dr. Raymond Rumpf's video</a>.For a good overview of the Lorentz and Drude models, you can read <a href="https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-007-electromagnetic-energy-from-motors-to-lasers-spring-2011/readings/MIT6_007S11_lorentz.pdf">this document</a> from MIT opencourseware on the subject.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>vP</b>: float - plasma frequency of the Lorentz oscillator in wavenumbers </li>
+		<li><b>f</b>: list of floats - empirically-determined scalar(s) to account for the intensity of each individual oscillator, dimensionless </li>
+		<li><b>vD</b>: list of floats - damping factor(s) of the Lorentz oscillator in wavenumbers </li>
+		<li><b>vj</b>: list of floats - frequency position(s) of the oscillation(s) in wavenumbers </li>
+	</ul>
+</li><br/>
+
+<li><h3>.setAbsLorentzian(matName, peakPosition, peakHeight, FWHM, pathlength_um, n_inf)</h3>
+	<div class="des">Calculates permittivities from the spectral features of an absorbance spectrum of, for example, a liquid in a cuvette.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>peakPosition</b>: list of floats - the frequencies of the peak positions </li>
+		<li><b>FWHM</b>: list of floats - the full widths at half maximum of the peaks, in wavenumbers</li>
+		<li><b>pathlength_um</b>: float - the pathlength of the transmission measurement in micrometers </li>
+		<li><b>n_inf</b>: float - the infinite-frequency refractive index </li>
+	</ul>
+</li><br/>
+
+<h2>Methods to define permittivity for composite materials (Effective Medium Approximations)</h2>
+
+<li><h3>.setBasicMaxwellGarnett(matName, inclusionMat, matrixMat, f)</h3>
+	<div class="des">Calculates permittivities using the basic 2-phase Maxwell-Garnett EMA for spheres. Verified working in DEMO_003 which replicates Fig 3 of <a href="https://doi.org/10.1175/1520-0469(1980)037%3C1821:RBBIPP%3E2.0.CO;2">Bohren, C; Battan, L. Radar Backscattering by Inhomogeneous Precipitation Particles. <i>J. Atmos. Sci.</i> <b>1980</b>, 37, 1821-1827.</a></div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>inclusionMat</b>: string - the name of the inclusion material </li>
+		<li><b>matrixMat</b>: string - the name of the matrix material</li>
+		<li><b>f</b>: float - the volumetric fill fraction of the inclusion (must be between 0 and 1 and note that the Maxwell-Garnett approximation performs porrly at high fill fractions) </li>
+	</ul>
+</li><br/>
+
+<li><h3>.setBasicBruggeman(matName, inclusionMat, matrixMat, f, d = 3)</h3>
+	<div class="des">Basic 2-phase symmetric Bruggeman model using Arwin's method to determine the physical root (getPhysicalRoot). Although symmetric, the parameters are named "inclusionMat" and "matrixMat" to indicate that the volume fill fraction, f, refers to the "inclusionMat" and the "matrixMat" occupies the balance of the volume (1-f). Verified working in DEMO_003 which replicates Fig 3 of <a href="https://doi.org/10.1175/1520-0469(1980)037%3C1821:RBBIPP%3E2.0.CO;2">Bohren, C; Battan, L. Radar Backscattering by Inhomogeneous Precipitation Particles. <i>J. Atmos. Sci.</i> <b>1980</b>, 37, 1821-1827. </a></div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>inclusionMat</b>: string - the name of the inclusion material </li>
+		<li><b>matrixMat</b>: string - the name of the matrix material</li>
+		<li><b>f</b>: float - the volumetric fill fraction of the inclusion (must be between 0 and 1)</li>
+		<li><b>d</b>: int - optional parameter indicating the dimensionality of the calculation. Default = 3. (e.g. dimensionality of 2 could be used for calculating the percolation of circles on a plane) </li>
+	</ul>
+</li><br/>
+
+<li><h3>.setMultiBruggeman(matName, constituentMat_ARR, fill_ARR)</h3>
+	<div class="des">Calculates the permittivity for a composite of an arbitrary number of different types of spheres according to the Bruggeman EMA for an arbitrary number of constituent particles. Follows the syntactical form as equation 15 (referred to as EMA1) in: <a href="https://doi.org/10.1103/PhysRevB.44.5459">Noh, T.; Song, P.; Sievers, A. Self-Consistency Conditions for the Effective-Medium Approximation in Composite Materials. <i>Phys. Rev. B Condens. Matter.</i> <b>1991</b>, 44, 5459–5464.</a></div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>constituentMat_ARR</b>: list of stri
+			ngs - the names of the materials of the component particles </li>
+		<li><b>fill_ARR</b>: list of floats - the fill fraction of each of the constituent particles</li>
+	</ul>
+</li><br/>
+
+
+<li><h3>.setCoatedEllipsoid(matName, coreMat, shellMat, a_core, b_core, c_core, lamda, rotMat=None)</h3>
+	<div class="des">Calculates the permittivity of a single coated ellipsoidal particle to the Bruggeman EMA. This is an implementation of: <a href="https://doi.org/10.1088/1361-6463/aa9606">Zhao, C.; Mei, Z. The effective permittivity of the coated ellipsoid: a tunable electromagnetic parameter approach. <i>J. Phys. D: Appl. Phys.</i> <b>2017</b>, 50, 505001.</a> Verified working in DEMO_006 which replicates figures 2c, 3d and 4d in the aforementioned paper.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>coreMat</b>: string - the name of the core material</li>
+		<li><b>shellMat</b>: string -  the name of the shell (coating) material </li>
+		<li><b>a_core</b>: float - the longest semi-axis of the ellipsoid </li>
+		<li><b>b_core</b>: float - the intermediate semi-axis of the ellipsoid </li>
+		<li><b>c_core</b>: float - the shortest semi-axis of the ellipsoid </li>
+		<li><b>lamda</b>: lamda is the volume fraction of the outer ellipsoid to the inner ellipsoid = (Vcore + Vshell) / Vshell </br>  Physically valid lamdas are foun on the intercal 0 <= lambda < 1 </li>
+	</ul>
+</li><br/>
+
+
+<li><h3>.setBruggeman(matName, coreMat, shellMat, matrixMat, thickness, molec, ratio1, F, plotResult=False, iterations=1)</h3>
+	<div class="des">Caution: this method might be sketchy, I don't think I have any direct verification that it is working as intended by comparing it to known modelling results. Calculates the permittivities using the Bruggeman formula for 3 phase, coated core-shell ellipsoids, NO self consistency condition. Granqvist has some papers that describe this formulation.</div>
+	<ul>
+		<li><b>matName</b>: string that will later be used to refer to this material </li>
+		<li><b>coreMat</b>: string indicating the core material of the ellipsoidal nanoparticles </li>
+		<li><b>shellMat</b>: string indicating the shell/coating material (i.e. the adsorbate) </li>
+		<li><b>matrixMat</b>: string indicating the material of the host material filling the spaces between the adsorbate-coated ellipsoids </li>
+		<li><b>thickness</b>: float - the thickness of the layer in nanometers </li>
+		<li><b>molec</b>: thickness of the shell of the molecular film coating the ellipsoids</li>
+		<li><b>ratio1</b>: aspect ratio of the ellipsoids </li>
+		<li><b>F</b>: fill factor, the volumetric fraction of the layer occupied by ellipsoids </li>
+	</ul>
+</li><br/>
+
+</ul>
+<a href="README.html"><h2>Back to main page.</h2></a>
+
+</body>
+</html>

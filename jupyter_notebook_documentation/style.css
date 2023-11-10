@@ -1,0 +1,150 @@
+h1 {font-size:30px;}
+h2 {
+font-size:24px;
+padding: 0px;
+margin: 0px;
+}
+h3 {
+font-size:18px;
+padding: 5px;
+margin: 0px;
+}
+
+input[type=number] {
+	width: 40px;
+}
+/* Remove little arrows on number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.removeBtn {
+	color: red;
+	/* background-color: black; */
+	margin-right: 5px;
+	float: left;
+}
+
+.floatBox {
+	float: left;
+}
+
+.highlight {
+	color: blue;
+	padding-left: 40px;
+	padding-top: 10px;
+}
+
+.codeinput {
+    font-family: Courier;
+	color: navy;
+	margin-left: 15px;
+}
+
+.return {
+	color: teal;
+}
+
+.des {
+	font-family: verdana;
+	font-size: 90%;
+	padding-left: 5px;
+	color: navy;
+}
+
+.opt {
+	color: #707070;
+}
+
+.leftcolumn {
+  float: left;
+  background-color: #808080;
+  width: 30%;
+}
+
+/* Centre column */
+.centrecolumn {
+  float: left;
+  width: 30%;
+  background-color: #606060;
+  padding-left: 20px;
+}
+
+
+/* Right column */
+.rightcolumn {
+  float: left;
+  width: 30%;
+  background-color: #404040;
+  padding-left: 20px;
+}
+
+.lefthalf {
+  float: left;
+  background-color: #808080;
+  width: 45%;
+}
+
+
+.righthalf {
+  float: left;
+  width: 45%;
+  background-color: #606060;
+  padding-left: 20px;
+}
+
+.fullBox {
+  float: left;
+  background-color: #808080;
+  width: 98%;
+  margin-top: 20px;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.floatBox {
+  float: left;
+  background-color: #808080;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+canvas {
+	padding-left: 10px;
+    padding-top: 10px;
+    /* To centre the canvas within the parent element*/
+	/* margin-left: auto; */
+    /* margin-right: auto; */
+    display: block;
+}
+
+/* when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 1000px) {
+  .leftcolumn, .centrecolumn, .rightcolumn {
+    width: 50%;
+    padding: 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .leftcolumn, .centrecolumn, .rightcolumn {
+    width: 100%;
+    padding: 0;
+  }
+}
+@media screen and (max-width: 1300px) {
+  .lefthalf, .righthalf {
+    width: 100%;
+    padding: 0;
+  }
+}

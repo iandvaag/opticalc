@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css">
+<title>Example</title>
+</head>
+
+<body>
+<h1>An example use case</h1>
+<p>
+	<p>This example use case also exists in a jupyter notebook form titled <b><i>ATR-SEIRAS_example.ipynb</i></b></p>
+	<h2>Setup</h2>
+	First, we have to import the program into our Jupyter notebook:
+	<p class="codeinput"><b><span style="color:green">from</span></b> opticalc_330 <b><span style="color:green">import </span></b> <span style="color:purple">*</span></p>
+	We can use the testImport() function to see if the file has been imported correctly:
+	<p class="codeinput">testImport()</p>
+	If the program was imported correctly, it should print <span style="font-family:Courier; color:navy">Import successful.</span> to standard output.<br/><br/>
+	<h2>Initial parameters</h2>
+	Let's create a calculate an Kretschmann-configuration ATR absorbance spectrum of a 1 nm layer of some test molecule on a sputtered ITO film with electrodeposited gold, all supported on a silicon ATR crystal. First, we start off by creating a materials object that defines the basic parameters of the calculation. We'll choose to do a simulation at a fixed angle of 60 degrees, and we'll plot the range of 1200 and 1300 wavenumbers with a resolution of 1 wavenumber (i.e. doing a calculation for each wavenumber), which will require 101 data points: <br/>
+	<p class="codeinput">mat = materials("frequency", 60, 1200, 1300, 101)</p>
+	<h2>Defining materials</h2>
+	Next we will need to define the permittivity values of the materials. The materials() object has several methods available to assist with this.
+
+	First, we will define the refractive index of Si to be 3.4 at all wavenumbers:
+	<p class="codeinput">mat.setFixed("Si", 3.4)</p>
+
+	Next, we'll model the test molecule as a Lorentz oscillator with B = 30000 cm<sup>-2</sup>, &gamma; = 20 cm<cup>-1</sup>, &epsilon;<sub>&#8734;</sub>  = 1.8, and &nu;<sub>resonant</sub> = 1250 cm<sup>-1</sup>. This function supports Lorentz oscillators with multiple resonances, so &nu;<sub>plasma</sub>, &gamma;, and &nu;<sub>resonant</sub> must be provided as arrays, which are indicated with [ ].<br/>
+	<p class="codeinput">mat.setLorentz("LO", [30000], [20], 1.8, [1250])</p>
+
+	Next, we can define the permittivity of the conductive ITO underlayer using the Drude model:
+	<p class="codeinput">mat.setDrude("ITOc", 17000, 900, 3.8)</p>
+
+	Finally, we will read in the permittivity values of gold and water from the csv file. This function can import multiple files in one go, so it expects an array of strings:
+	<p class="codeinput">mat.importMat(["Au", "Water"])</p>
+
+
+	We have now defined the permittivity values of our bulk materials. However, the interface of the working electrode is a rough surface made up of nanoparticles, coated with the test molecule, and immersed in the electrolyte. This type of inhomogeneous system is not properly modelled by a uniform slab of a single material. Rather than fully model this complex system, we can use an effective medium approximation (EMA), provided that the structure of the nanoparticles is significantly smaller than the wavelength of light. <br/><br/>In this example, I will demonstrate the use of the "setMultiBruggeman() method which enables the calculation of the effective permittivity of a composite containing spherical constituent particles made of n-many different materials. As with all of the permittivity-defining methods, the first argument we must provide is a string to identify the material, in this case I will call it "Samp_multiDroplet". Next, we provide an array listing the material IDs of the nanoparticles, ["Au", "org", "H2O"]. The last parameter we must provide is an array of the fractional volumes occupied by nanoparticles, in the same order that corresponds to the order that the IDs were provided.
+
+	<p class="codeinput">mat.setMultiBruggeman("Samp_multiDroplet", ["Au", "org", "H2O"], [f1, f2samp, 1.0-f1-f2samp])</p>
+	We also need a reference case where the "org" particles are absent:
+	<p class="codeinput">mat.setMultiBruggeman("Ref_multiDroplet", ["Au", "H2O"], [f1, 1.0-f1])</p>
+
+	Note that permittivity, &epsilon;, and complex refractive index, &eta;, are two different ways of representing the same information. All of the above methods that we used to calculate &epsilon; also automatically calculate &eta; and both are stored as entries in a dictionary. The &epsilon; value can be accessed with the key ["eps"] and the &eta; value can be accessed with the key ["eta"]. Each of &epsilon; and &eta; are stored as the numpy data type <a href="https://docs.scipy.org/doc/numpy/user/basics.types.html">complex</a>. For example, this is how one would access the &epsilon; of Au:
+	<p class="codeinput">mat.matDict["Au"]["eps"]</p>
+
+	Let's plot up the permittivities to check that they are reasonable.
+
+	<p class="codeinput">plt.plot(mat.nu, mat.matDict["BR"]["eta"].real, mat.nu, mat.matDict["BR"]["eta"].imag)<br/>
+	plt.legend("n", "k")<br/>
+	plt.xlabel("Wavenumber")<br/>
+	plt.title("Complex refractive index of Bruggeman layer")<br/>
+	plt.show()<br/>
+	</p>
+
+	<h2>Setting up a calculation</h2>
+	At this point we have collected the permittivity functions of all of our component materials and are ready to define the parameters of the calculation. We will create a PhaseSys object with 4 layers (silicon, ITO, heterogeneous "rough" gold, water). Then we will specify the order of the material of the layers starting with the incident phase: <br/>
+	<p class="codeinput"> samp = PhaseSys(4, mat) <br/>samp.setLayers(["Si", "ITOc", "Samp_multiDroplet", "Water"])</p>
+
+	Now we need to provide the thicknesses of the layers. The terminal layers are considered to be semi-infinite, so for a system of <i>n</i> layers, <i>n-2</i> thickness values are required. Here, we will make the ITO layer 25 nm, and the the Bruggeman layer is 20 nm:
+	<p class="codeinput"> samp.setThicknesses([25, 20])</p>
+
+	Finally, we can specify the type of calculation. Here we will calculate the p-polarized reflectivity:
+	<p class="codeinput"> Rp_samp = samp.calcR("p")</p>
+
+	The same calculations can be repeated for the "reference" reflectivity spectrum:
+	<p class="codeinput"> ref = PhaseSys(4, mat) <br/>ref.setLayers(["Si", "ITOc", "Ref_multiDroplet", "Water"])</p>
+	<p class="codeinput"> ref.setThicknesses([25, 20])</p>
+	<p class="codeinput"> Rp_ref = ref.calcR("p")</p>
+
+	<p>Finally, the absorptivity spectrum can be calculated from: A = -log10(Rp_samp / Rp_ref), and this result can be plotted.</p>
+
+<a href="README.html"><h2>Back to main page.</h2></a>
+
+</body>
+</html>

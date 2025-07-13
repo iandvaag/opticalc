@@ -19,5 +19,11 @@ jupyter notebook
 Note that you sould select the kernel 'github_opticalc_myenv' as a kernel befor running the example notebooks.
 
 
+It is advisable to do a
+`pip-audit --dry-run --fix`
+then a
+`pip-audit --fix`
+to check and remove security issues with included packages.
+
 ## How to use the library
 Documentation for use is viewable at: [https://iandvaag.github.io/opticalc/](https://iandvaag.github.io/opticalc/)
